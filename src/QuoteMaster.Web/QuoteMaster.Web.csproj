@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\QuoteMaster.Application\QuoteMaster.Application.csproj" />
+    <ProjectReference Include="..\QuoteMaster.Infrastructure\QuoteMaster.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>
