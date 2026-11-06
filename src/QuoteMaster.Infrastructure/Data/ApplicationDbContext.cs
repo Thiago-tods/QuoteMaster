@@ -9,6 +9,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Quotation> Quotations => Set<Quotation>();
     public DbSet<QuotationItem> QuotationItems => Set<QuotationItem>();
+    public DbSet<QuotationNumberSequence> QuotationNumberSequences => Set<QuotationNumberSequence>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,6 +37,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(x => x.Discount).HasPrecision(12, 2);
             entity.Property(x => x.Total).HasPrecision(12, 2);
             entity.Property(x => x.Notes).HasMaxLength(2000);
+            entity.HasIndex(x => x.Status);
             entity.HasOne(x => x.Client).WithMany(x => x.Quotations).HasForeignKey(x => x.ClientId).OnDelete(DeleteBehavior.Restrict);
         });
 
@@ -47,6 +49,13 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
             entity.Property(x => x.Discount).HasPrecision(12, 2);
             entity.Property(x => x.Total).HasPrecision(12, 2);
             entity.HasOne(x => x.Quotation).WithMany(x => x.Items).HasForeignKey(x => x.QuotationId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(x => x.Product).WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<QuotationNumberSequence>(entity =>
+        {
+            entity.HasKey(x => x.Year);
+            entity.Property(x => x.Year).ValueGeneratedNever();
         });
     }
 }

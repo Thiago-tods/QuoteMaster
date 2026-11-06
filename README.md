@@ -33,8 +33,15 @@ dotnet tool restore
 dotnet run --project src/QuoteMaster.Web
 ```
 
-O banco SQLite será armazenado localmente como `quotemaster.db` na pasta de execução. A aplicação aplica as migrations pendentes ao iniciar. Esse arquivo está ignorado pelo Git.
+Para compilar e executar a suíte automatizada:
+
+```powershell
+dotnet build
+dotnet test
+```
+
+O banco SQLite será armazenado localmente como `quotemaster-day2.db` na pasta de execução. A aplicação aplica as migrations pendentes ao iniciar. Esse arquivo está ignorado pelo Git.
 
 ## Estado do projeto
 
-Fundação inicial criada: solução, quatro projetos, entidades centrais, enums, contexto EF Core, configuração SQLite e migration inicial. O build compila com o SDK .NET 10.
+Camada de negócio inicial concluída: validação de clientes e catálogo, cálculo financeiro, transições de status, serviços de clientes/produtos/orçamentos, numeração anual atômica, migrations e testes unitários/de integração. O banco é atualizado automaticamente ao iniciar a aplicação.

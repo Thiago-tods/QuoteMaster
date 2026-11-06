@@ -52,7 +52,7 @@ namespace QuoteMaster.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clients");
+                    b.ToTable("Clients", (string)null);
                 });
 
             modelBuilder.Entity("QuoteMaster.Domain.Entities.Product", b =>
@@ -85,7 +85,7 @@ namespace QuoteMaster.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("QuoteMaster.Domain.Entities.Quotation", b =>
@@ -134,7 +134,9 @@ namespace QuoteMaster.Infrastructure.Data.Migrations
                     b.HasIndex("Number")
                         .IsUnique();
 
-                    b.ToTable("Quotations");
+                    b.HasIndex("Status");
+
+                    b.ToTable("Quotations", (string)null);
                 });
 
             modelBuilder.Entity("QuoteMaster.Domain.Entities.QuotationItem", b =>
@@ -172,9 +174,24 @@ namespace QuoteMaster.Infrastructure.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ProductId");
+
                     b.HasIndex("QuotationId");
 
-                    b.ToTable("QuotationItems");
+                    b.ToTable("QuotationItems", (string)null);
+                });
+
+            modelBuilder.Entity("QuoteMaster.Infrastructure.Data.QuotationNumberSequence", b =>
+                {
+                    b.Property<int>("Year")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<long>("LastNumber")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Year");
+
+                    b.ToTable("QuotationNumberSequences", (string)null);
                 });
 
             modelBuilder.Entity("QuoteMaster.Domain.Entities.Quotation", b =>
@@ -190,11 +207,18 @@ namespace QuoteMaster.Infrastructure.Data.Migrations
 
             modelBuilder.Entity("QuoteMaster.Domain.Entities.QuotationItem", b =>
                 {
+                    b.HasOne("QuoteMaster.Domain.Entities.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("QuoteMaster.Domain.Entities.Quotation", "Quotation")
                         .WithMany("Items")
                         .HasForeignKey("QuotationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Product");
 
                     b.Navigation("Quotation");
                 });

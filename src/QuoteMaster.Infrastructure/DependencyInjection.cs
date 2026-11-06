@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using QuoteMaster.Infrastructure.Data;
+using QuoteMaster.Application.Interfaces;
+using QuoteMaster.Infrastructure.Services;
 
 namespace QuoteMaster.Infrastructure;
 
@@ -13,6 +15,11 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException("Connection string 'DefaultConnection' was not configured.");
 
         services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connectionString));
+        services.AddSingleton(TimeProvider.System);
+        services.AddScoped<IClientService, ClientService>();
+        services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IQuotationNumberGenerator, QuotationNumberGenerator>();
+        services.AddScoped<IQuotationService, QuotationService>();
         return services;
     }
 }
