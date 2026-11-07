@@ -47,7 +47,25 @@ Execute `powershell -ExecutionPolicy Bypass -File scripts/Build-Distribution.ps1
 
 ## Demonstração e portfólio
 
-Dados de demonstração são fictícios e mostram uma empresa marcada “DEMONSTRAÇÃO”, cinco clientes, dez itens de catálogo e dez orçamentos em diferentes estados. O roteiro comercial e o roteiro de vídeo estão em [docs/commercial-kit.md](docs/commercial-kit.md). Capturas reais da interface e vídeo ainda não foram adicionados; não há imagens de mockup apresentadas como telas do produto.
+Dados de demonstração são fictícios e mostram uma empresa marcada “DEMONSTRAÇÃO”, cinco clientes, dez itens de catálogo e dez orçamentos em diferentes estados. O roteiro comercial e o roteiro de vídeo estão em [docs/commercial-kit.md](docs/commercial-kit.md). As imagens abaixo são capturas da interface do QuoteMaster.
+
+### Dashboard
+
+![Dashboard do QuoteMaster](docs/images/dashboard.png)
+
+### Clientes e catálogo
+
+<p align="center">
+  <img src="docs/images/clients.png" alt="Tela de clientes do QuoteMaster" width="49%">
+  <img src="docs/images/products.png" alt="Tela de produtos e serviços do QuoteMaster" width="49%">
+</p>
+
+### Orçamentos e configurações
+
+<p align="center">
+  <img src="docs/images/quotations.png" alt="Tela de orçamentos do QuoteMaster" width="49%">
+  <img src="docs/images/settings.png" alt="Configurações da empresa no QuoteMaster" width="49%">
+</p>
 
 ## Licença do PDF
 
@@ -55,7 +73,7 @@ A configuração local seleciona `Evaluation` para desenvolvimento, testes e ava
 
 ## Estado da versão
 
-A candidata local tem testes, workflow GitHub Actions e artefatos Windows gerados. Ainda depende de instalação/atualização em máquina limpa, backup/restauração testados, revisão visual/capturas reais, validação da licença de produção e execução da CI em remoto. O app é local e de usuário único; não inclui login, rede, sincronização, multiusuário, SaaS, emissão fiscal ou atualizador automático. Não há publicação remota configurada.
+A versão publicada no GitHub tem workflow GitHub Actions e pacote Windows gerado localmente. A release binária ainda depende de instalação/atualização em máquina limpa, backup/restauração testados, validação da licença de produção e CI aprovada. O app é local e de usuário único; não inclui login, rede, sincronização, multiusuário, SaaS, emissão fiscal ou atualizador automático.
 
 ## English
 
