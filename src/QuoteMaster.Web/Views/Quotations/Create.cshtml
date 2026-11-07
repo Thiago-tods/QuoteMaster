@@ -1,0 +1,79 @@
+@model QuotationCreateViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Novo orçamento";
+    var invariant = CultureInfo.InvariantCulture;
+}
+<div class="page-heading"><div><a class="back-link" asp-action="Index"><i class="bi bi-arrow-left"></i> Voltar para orçamentos</a><h1>Nova proposta</h1><p>Selecione um cliente, adicione itens e revise os valores antes de salvar.</p></div><span class="draft-indicator"><i class="bi bi-circle-fill"></i>Será salvo como rascunho</span></div>
+<form asp-action="Create" method="post" class="quotation-form" id="quotationForm">
+    <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+    <div class="quotation-form-main">
+        <section class="surface-card form-card quotation-section">
+            <div class="form-section-heading"><span class="section-icon"><i class="bi bi-person-vcard"></i></span><div><h2>Dados da proposta</h2><p>O número é gerado automaticamente ao salvar.</p></div><span class="step-number">01</span></div>
+            <div class="row g-3">
+                <div class="col-md-7"><label asp-for="ClientId" class="form-label required-label"></label><select asp-for="ClientId" class="form-select"><option value="0">Selecione um cliente</option>@foreach (var client in Model.Clients) { <option value="@client.Id" selected="@(client.Id == Model.ClientId)">@client.Name</option> }</select><span asp-validation-for="ClientId" class="field-validation"></span>@if (Model.Clients.Count == 0) { <small class="form-hint">Nenhum cliente ativo. <a asp-controller="Clients" asp-action="Create">Cadastre um cliente</a> antes de continuar.</small> }</div>
+                <div class="col-md-5"><label asp-for="ValidUntil" class="form-label required-label"></label><input asp-for="ValidUntil" type="date" class="form-control" /><span asp-validation-for="ValidUntil" class="field-validation"></span></div>
+            </div>
+        </section>
+
+        <section class="surface-card form-card quotation-section">
+            <div class="form-section-heading"><span class="section-icon"><i class="bi bi-list-check"></i></span><div><h2>Itens do orçamento</h2><p>Use um item do catálogo ou descreva um serviço personalizado.</p></div><span class="step-number">02</span></div>
+            <div class="quotation-items-header"><span>ITEM / DESCRIÇÃO</span><span>QTD.</span><span>VALOR UNIT.</span><span>DESCONTO</span><span></span></div>
+            <div id="quotationItems">
+                @for (var i = 0; i < Model.Items.Count; i++)
+                {
+                    <div class="quotation-item-row" data-item-row>
+                        <div class="item-description-fields">
+                            <select name="Items[@i].ProductId" id="Items_@(i)__ProductId" class="form-select catalog-select" aria-label="Produto ou serviço">
+                                <option value="">Item personalizado</option>
+                                @foreach (var product in Model.Products)
+                                {
+                                    <option value="@product.Id" data-name="@product.Name" data-price="@product.DefaultPrice.ToString(invariant)" selected="@(Model.Items[i].ProductId == product.Id)">@product.Name · @product.DefaultPrice.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</option>
+                                }
+                            </select>
+                            <input name="Items[@i].Description" id="Items_@(i)__Description" value="@Model.Items[i].Description" class="form-control item-description" placeholder="Descrição do item personalizado" maxlength="300" aria-label="Descrição" />
+                        </div>
+                        <input name="Items[@i].Quantity" id="Items_@(i)__Quantity" value="@Model.Items[i].Quantity.ToString(invariant)" class="form-control item-quantity numeric-preview" type="number" min="0.001" step="0.001" aria-label="Quantidade" />
+                        <div class="money-field unit-price-field"><span>R$</span><input name="Items[@i].UnitPrice" id="Items_@(i)__UnitPrice" value="@Model.Items[i].UnitPrice?.ToString(invariant)" class="form-control item-price numeric-preview" type="number" min="0" step="0.01" placeholder="0,00" aria-label="Valor unitário" /></div>
+                        <div class="money-field item-discount-field"><span>R$</span><input name="Items[@i].Discount" id="Items_@(i)__Discount" value="@Model.Items[i].Discount.ToString(invariant)" class="form-control item-discount numeric-preview" type="number" min="0" step="0.01" placeholder="0,00" aria-label="Desconto do item" /></div>
+                        <button type="button" class="remove-item-button" data-remove-item aria-label="Remover item"><i class="bi bi-trash3"></i></button>
+                        <span class="field-validation item-error" data-item-error></span>
+                    </div>
+                }
+            </div>
+            <template id="itemTemplate">
+                <div class="quotation-item-row" data-item-row>
+                    <div class="item-description-fields">
+                        <select name="Items[__INDEX__].ProductId" id="Items___INDEX___ProductId" class="form-select catalog-select" aria-label="Produto ou serviço"><option value="">Item personalizado</option>@foreach (var product in Model.Products) { <option value="@product.Id" data-name="@product.Name" data-price="@product.DefaultPrice.ToString(invariant)">@product.Name · @product.DefaultPrice.ToString("C", CultureInfo.GetCultureInfo("pt-BR"))</option> }</select>
+                        <input name="Items[__INDEX__].Description" id="Items___INDEX___Description" class="form-control item-description" placeholder="Descrição do item personalizado" maxlength="300" aria-label="Descrição" />
+                    </div>
+                    <input name="Items[__INDEX__].Quantity" id="Items___INDEX___Quantity" value="1" class="form-control item-quantity numeric-preview" type="number" min="0.001" step="0.001" aria-label="Quantidade" />
+                    <div class="money-field unit-price-field"><span>R$</span><input name="Items[__INDEX__].UnitPrice" id="Items___INDEX___UnitPrice" class="form-control item-price numeric-preview" type="number" min="0" step="0.01" placeholder="0,00" aria-label="Valor unitário" /></div>
+                    <div class="money-field item-discount-field"><span>R$</span><input name="Items[__INDEX__].Discount" id="Items___INDEX___Discount" value="0" class="form-control item-discount numeric-preview" type="number" min="0" step="0.01" placeholder="0,00" aria-label="Desconto do item" /></div>
+                    <button type="button" class="remove-item-button" data-remove-item aria-label="Remover item"><i class="bi bi-trash3"></i></button>
+                    <span class="field-validation item-error" data-item-error></span>
+                </div>
+            </template>
+            <button type="button" class="add-item-button" id="addItem"><i class="bi bi-plus-circle"></i>Adicionar outro item</button>
+            @if (Model.Products.Count == 0) { <div class="inline-notice"><i class="bi bi-info-circle"></i>Seu catálogo ainda está vazio. Você pode informar itens personalizados ou <a asp-controller="Products" asp-action="Create">cadastrar produtos e serviços</a>.</div> }
+        </section>
+
+        <section class="surface-card form-card quotation-section">
+            <div class="form-section-heading"><span class="section-icon"><i class="bi bi-chat-square-text"></i></span><div><h2>Observações e condições</h2><p>Inclua prazo, condições de pagamento ou garantia.</p></div><span class="step-number">03</span></div>
+            <label asp-for="Notes" class="form-label"></label><textarea asp-for="Notes" rows="4" class="form-control" placeholder="Ex.: Prazo de execução de até 5 dias úteis após aprovação…"></textarea><span asp-validation-for="Notes" class="field-validation"></span>
+        </section>
+    </div>
+    <aside class="quotation-form-aside">
+        <section class="surface-card summary-card">
+            <div class="summary-title"><span class="section-icon"><i class="bi bi-calculator"></i></span><div><h2>Resumo</h2><small>Prévia dos valores</small></div></div>
+            <div class="summary-lines"><div><span>Subtotal</span><strong id="previewSubtotal">R$ 0,00</strong></div><div class="summary-discount"><label asp-for="Discount"></label><div class="money-field"><span>R$</span><input asp-for="Discount" id="generalDiscount" class="form-control numeric-preview" type="number" min="0" step="0.01" placeholder="0,00" /></div></div></div>
+            <div class="summary-total"><span>Total estimado</span><strong id="previewTotal">R$ 0,00</strong></div>
+            <p class="summary-disclaimer"><i class="bi bi-info-circle"></i>Valores recalculados e validados pelo servidor ao salvar.</p>
+        </section>
+        <section class="surface-card save-card"><span class="save-lock"><i class="bi bi-shield-check"></i></span><strong>Pronto para revisar?</strong><p>Seu orçamento será salvo como rascunho. Você poderá enviá-lo ao cliente depois.</p><button type="submit" class="btn btn-primary w-100"><i class="bi bi-check2-circle"></i>Salvar orçamento</button><a class="cancel-link" asp-action="Index">Cancelar</a></section>
+    </aside>
+</form>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/quotation-form.js" asp-append-version="true"></script>
+}

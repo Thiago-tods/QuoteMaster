@@ -1,0 +1,28 @@
+@model ClientDetailsViewModel
+@{
+    ViewData["Title"] = "Detalhes do cliente";
+    var client = Model.Client;
+    var ptBr = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+}
+<div class="page-heading">
+    <div><a class="back-link" asp-action="Index"><i class="bi bi-arrow-left"></i> Voltar para clientes</a><h1>Detalhes do cliente</h1><p>Informações de contato e histórico de propostas.</p></div>
+    <div class="heading-actions"><a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@client.Id"><i class="bi bi-pencil"></i>Editar</a>@if (client.IsActive) { <form asp-action="Deactivate" asp-route-id="@client.Id" method="post" data-confirm="Desativar este cliente? Os orçamentos existentes serão preservados."><button class="btn btn-outline-danger" type="submit"><i class="bi bi-person-dash"></i>Desativar</button></form> }</div>
+</div>
+<section class="detail-grid">
+    <article class="surface-card detail-card">
+        <div class="detail-profile"><span class="entity-avatar avatar-client avatar-large">@client.Name[..1].ToUpperInvariant()</span><div><h2>@client.Name</h2><span class="status-badge @(client.IsActive ? "badge-approved" : "badge-expired")"><span></span>@(client.IsActive ? "Ativo" : "Inativo")</span></div></div>
+        <div class="detail-info-grid">
+            <div><span class="detail-label">CPF / CNPJ</span><strong>@(client.Document ?? "Não informado")</strong></div>
+            <div><span class="detail-label">E-mail</span><strong>@(client.Email ?? "Não informado")</strong></div>
+            <div><span class="detail-label">Telefone</span><strong>@(client.Phone ?? "Não informado")</strong></div>
+            <div><span class="detail-label">Cadastrado em</span><strong>@client.CreatedAt.ToLocalTime().ToString("dd MMMM yyyy", ptBr)</strong></div>
+            <div class="detail-wide"><span class="detail-label">Endereço</span><strong>@(client.Address ?? "Não informado")</strong></div>
+        </div>
+    </article>
+    <article class="surface-card detail-stat"><span class="metric-icon icon-blue"><i class="bi bi-file-earmark-text"></i></span><span class="detail-label">Orçamentos associados</span><strong>@Model.Quotations.Count</strong><small>Histórico preservado</small><a class="text-link" asp-controller="Quotations" asp-action="Create" asp-route-clientId="@client.Id">Criar orçamento <i class="bi bi-arrow-right"></i></a></article>
+</section>
+<section class="surface-card table-card mt-4">
+    <div class="card-heading table-card-heading"><div><h2>Histórico de orçamentos</h2><p>Propostas vinculadas a @client.Name</p></div></div>
+    @if (Model.Quotations.Count == 0) { <div class="empty-state compact"><span class="empty-icon"><i class="bi bi-clock-history"></i></span><h3>Nenhum orçamento ainda</h3><p>As propostas deste cliente aparecerão aqui.</p></div> }
+    else { <div class="table-responsive"><table class="table app-table align-middle mb-0"><thead><tr><th>Número</th><th>Emissão</th><th>Validade</th><th class="text-end">Total</th><th>Status</th><th></th></tr></thead><tbody>@foreach (var quote in Model.Quotations) { <tr><td><a class="table-primary-link" asp-controller="Quotations" asp-action="Details" asp-route-id="@quote.Id">@quote.Number</a></td><td>@quote.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</td><td>@quote.ValidUntil.ToString("dd/MM/yyyy")</td><td class="text-end fw-semibold">@quote.Total.ToString("C", ptBr)</td><td><partial name="_StatusBadge" model="quote.Status" /></td><td class="text-end"><a class="row-action" asp-controller="Quotations" asp-action="Details" asp-route-id="@quote.Id"><i class="bi bi-arrow-up-right"></i></a></td></tr> }</tbody></table></div> }
+</section>

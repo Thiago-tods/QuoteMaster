@@ -1,0 +1,26 @@
+@model QuotationDto
+@using System.Globalization
+@{
+    ViewData["Title"] = "Detalhes do orçamento";
+    var ptBr = CultureInfo.GetCultureInfo("pt-BR");
+    var canExpire = Model.Status == QuotationStatus.Sent && DateTime.UtcNow.Date > Model.ValidUntil.Date;
+}
+<div class="page-heading">
+    <div><a class="back-link" asp-action="Index"><i class="bi bi-arrow-left"></i> Voltar para orçamentos</a><h1>@Model.Number</h1><p>Proposta criada em @Model.CreatedAt.ToLocalTime().ToString("dd 'de' MMMM 'de' yyyy", ptBr).</p></div>
+    <div class="heading-actions"><partial name="_StatusBadge" model="Model.Status" />@if (Model.Status == QuotationStatus.Draft) { <form asp-action="Send" asp-route-id="@Model.Id" method="post" data-confirm="Marcar este orçamento como enviado?"><button type="submit" class="btn btn-primary"><i class="bi bi-send"></i>Marcar como enviado</button></form> } else if (Model.Status == QuotationStatus.Sent) { <form asp-action="Approve" asp-route-id="@Model.Id" method="post" data-confirm="Confirmar a aprovação deste orçamento?"><button type="submit" class="btn btn-success"><i class="bi bi-check2"></i>Aprovar</button></form><form asp-action="Reject" asp-route-id="@Model.Id" method="post" data-confirm="Marcar este orçamento como recusado?"><button type="submit" class="btn btn-outline-danger"><i class="bi bi-x-lg"></i>Recusar</button></form>@if (canExpire) { <form asp-action="Expire" asp-route-id="@Model.Id" method="post"><button type="submit" class="btn btn-outline-secondary"><i class="bi bi-clock-history"></i>Expirar</button></form> } }<button type="button" class="btn btn-outline-secondary" disabled title="Disponível no Dia 4"><i class="bi bi-file-earmark-pdf"></i>PDF em breve</button></div>
+</div>
+<section class="quotation-detail-grid">
+    <div class="quotation-detail-main">
+        <article class="surface-card detail-card">
+            <div class="form-section-heading"><span class="section-icon"><i class="bi bi-person-vcard"></i></span><div><h2>Destinatário</h2><p>Dados do cliente desta proposta</p></div></div>
+            <div class="customer-summary"><span class="entity-avatar avatar-client">@Model.ClientName[..1].ToUpperInvariant()</span><div><a class="entity-name" asp-controller="Clients" asp-action="Details" asp-route-id="@Model.ClientId">@Model.ClientName</a><small>Cliente QuoteMaster</small></div><a class="row-action ms-auto" asp-controller="Clients" asp-action="Details" asp-route-id="@Model.ClientId" aria-label="Ver cliente"><i class="bi bi-arrow-up-right"></i></a></div>
+            <div class="quote-meta-grid"><div><span class="detail-label">Data de emissão</span><strong>@Model.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</strong></div><div><span class="detail-label">Válido até</span><strong>@Model.ValidUntil.ToString("dd/MM/yyyy")</strong></div><div><span class="detail-label">Número do orçamento</span><strong>@Model.Number</strong></div></div>
+        </article>
+        <article class="surface-card table-card quotation-line-card">
+            <div class="card-heading table-card-heading"><div><h2>Itens da proposta</h2><p>@Model.Items.Count item(ns) incluído(s)</p></div></div>
+            <div class="table-responsive"><table class="table app-table align-middle mb-0"><thead><tr><th>Descrição</th><th class="text-end">Quantidade</th><th class="text-end">Preço unitário</th><th class="text-end">Desconto</th><th class="text-end">Total</th></tr></thead><tbody>@foreach (var item in Model.Items) { <tr><td><span class="contact-primary">@item.Description</span></td><td class="text-end">@item.Quantity.ToString("0.###", ptBr)</td><td class="text-end">@item.UnitPrice.ToString("C", ptBr)</td><td class="text-end">@item.Discount.ToString("C", ptBr)</td><td class="text-end fw-semibold">@item.Total.ToString("C", ptBr)</td></tr> }</tbody></table></div>
+            <div class="quote-total-box"><div><span>Subtotal</span><strong>@Model.Subtotal.ToString("C", ptBr)</strong></div><div><span>Desconto geral</span><strong class="discount-text">− @Model.Discount.ToString("C", ptBr)</strong></div><div class="quote-grand-total"><span>Total final</span><strong>@Model.Total.ToString("C", ptBr)</strong></div></div>
+        </article>
+    </div>
+    <aside class="quotation-detail-aside"><section class="surface-card status-detail-card"><span class="detail-label">Status atual</span><partial name="_StatusBadge" model="Model.Status" /><p>@(Model.Status switch { QuotationStatus.Draft => "Este orçamento ainda não foi enviado ao cliente.", QuotationStatus.Sent => "Aguardando retorno do cliente.", QuotationStatus.Approved => "O cliente aprovou esta proposta.", QuotationStatus.Rejected => "O cliente recusou esta proposta.", _ => "O prazo deste orçamento terminou." })</p></section>@if (!string.IsNullOrWhiteSpace(Model.Notes)) { <section class="surface-card notes-card"><div class="card-heading"><span class="section-icon"><i class="bi bi-chat-left-text"></i></span><div><h2>Observações</h2></div></div><p>@Model.Notes</p></section> }</aside>
+</section>

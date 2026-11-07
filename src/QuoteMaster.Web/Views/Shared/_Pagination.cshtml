@@ -1,0 +1,20 @@
+@model PaginationViewModel
+@if (Model.TotalCount > 0)
+{
+    var query = Context.Request.Query.ToDictionary(pair => pair.Key, pair => (string?)pair.Value.ToString());
+    <nav class="pagination-row" aria-label="Paginação">
+        <span class="pagination-summary">Mostrando <strong>@(((Model.Page - 1) * Model.PageSize) + 1)–@Math.Min(Model.Page * Model.PageSize, Model.TotalCount)</strong> de <strong>@Model.TotalCount</strong></span>
+        <div class="pagination-controls">
+            @for (var p = Math.Max(1, Model.Page - 1); p <= Math.Min(Model.PageCount, Model.Page + 1); p++)
+            {
+                query["page"] = p.ToString();
+                <a class="page-button @(p == Model.Page ? "current" : "")" href="@(Context.Request.Path + QueryString.Create(query))" aria-current="@(p == Model.Page ? "page" : null)">@p</a>
+            }
+            @if (Model.Page < Model.PageCount)
+            {
+                query["page"] = (Model.Page + 1).ToString();
+                <a class="page-button next" href="@(Context.Request.Path + QueryString.Create(query))" aria-label="Próxima página"><i class="bi bi-chevron-right"></i></a>
+            }
+        </div>
+    </nav>
+}

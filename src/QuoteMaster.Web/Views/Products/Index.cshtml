@@ -1,0 +1,36 @@
+@model ProductListViewModel
+@{
+    ViewData["Title"] = "Produtos e serviços";
+    var ptBr = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+}
+<div class="page-heading">
+    <div><span class="eyebrow">CATÁLOGO</span><h1>Produtos e serviços</h1><p>Gerencie os itens e preços que compõem suas propostas.</p></div>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg"></i>Novo item</a>
+</div>
+<section class="surface-card list-card">
+    <form method="get" class="list-toolbar">
+        <div class="search-field"><i class="bi bi-search"></i><input type="search" name="search" value="@Model.Search" placeholder="Buscar no catálogo" aria-label="Buscar produtos e serviços" /></div>
+        <select class="form-select toolbar-select" name="status" aria-label="Filtrar por situação"><option value="all" selected="@(Model.Status == "all")">Todos os status</option><option value="active" selected="@(Model.Status == "active")">Ativos</option><option value="inactive" selected="@(Model.Status == "inactive")">Inativos</option></select>
+        <input type="hidden" name="sort" value="@Model.Sort" /><input type="hidden" name="descending" value="@Model.Descending.ToString().ToLowerInvariant()" />
+        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-funnel"></i>Filtrar</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Search) || Model.Status != "all") { <a class="clear-filter" asp-action="Index">Limpar</a> }
+    </form>
+    @if (Model.Products.Count == 0)
+    {
+        <div class="empty-state"><span class="empty-icon"><i class="bi bi-box-seam"></i></span><h3>Seu catálogo está vazio</h3><p>Cadastre produtos e serviços para acelerar a criação de propostas.</p><a class="btn btn-primary" asp-action="Create">Adicionar primeiro item</a></div>
+    }
+    else
+    {
+        <div class="table-responsive"><table class="table app-table align-middle mb-0"><thead><tr>
+            <th><a class="sort-link" asp-action="Index" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-sort="name" asp-route-descending="@(Model.Sort == "name" ? !Model.Descending : false)">Item <i class="bi bi-arrow-down-up"></i></a></th>
+            <th><a class="sort-link" asp-action="Index" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-sort="type" asp-route-descending="@(Model.Sort == "type" ? !Model.Descending : false)">Tipo <i class="bi bi-arrow-down-up"></i></a></th>
+            <th><a class="sort-link" asp-action="Index" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-sort="price" asp-route-descending="@(Model.Sort == "price" ? !Model.Descending : false)">Preço padrão <i class="bi bi-arrow-down-up"></i></a></th><th>Situação</th><th class="text-end">Ações</th>
+        </tr></thead><tbody>
+        @foreach (var product in Model.Products)
+        {
+            <tr><td><div class="entity-cell"><span class="entity-avatar @(product.Type == ProductType.Product ? "avatar-product" : "avatar-service")"><i class="bi @(product.Type == ProductType.Product ? "bi-box" : "bi-wrench-adjustable")"></i></span><span><a class="entity-name" asp-action="Edit" asp-route-id="@product.Id">@product.Name</a><small>@(product.Description ?? "Sem descrição")</small></span></div></td><td><span class="type-pill">@(product.Type == ProductType.Product ? "Produto" : "Serviço")</span></td><td class="fw-semibold">@product.DefaultPrice.ToString("C", ptBr)</td><td><span class="status-badge @(product.IsActive ? "badge-approved" : "badge-expired")"><span></span>@(product.IsActive ? "Ativo" : "Inativo")</span></td><td class="text-end"><div class="table-actions"><a class="row-action" asp-action="Edit" asp-route-id="@product.Id" title="Editar"><i class="bi bi-pencil"></i></a>@if (product.IsActive) { <form asp-action="Deactivate" asp-route-id="@product.Id" method="post" data-confirm="Desativar este item do catálogo?"><button type="submit" class="row-action danger-action" title="Desativar"><i class="bi bi-slash-circle"></i></button></form> }</div></td></tr>
+        }
+        </tbody></table></div>
+        <partial name="_Pagination" model="new PaginationViewModel(Model.Page, Model.PageCount, Model.TotalCount, Model.PageSize)" />
+    }
+</section>

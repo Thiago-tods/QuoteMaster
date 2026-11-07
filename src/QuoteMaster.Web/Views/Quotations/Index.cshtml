@@ -1,0 +1,40 @@
+@model QuotationListViewModel
+@{
+    ViewData["Title"] = "Orçamentos";
+    var ptBr = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+}
+<div class="page-heading">
+    <div><span class="eyebrow">VENDAS</span><h1>Orçamentos</h1><p>Crie propostas, acompanhe respostas e mantenha cada negociação em movimento.</p></div>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg"></i>Novo orçamento</a>
+</div>
+<section class="surface-card list-card">
+    <form method="get" class="list-toolbar quotation-toolbar">
+        <div class="search-field"><i class="bi bi-search"></i><input type="search" name="search" value="@Model.Search" placeholder="Buscar número ou cliente" aria-label="Buscar orçamentos" /></div>
+        <select class="form-select toolbar-select" name="status" aria-label="Filtrar status"><option value="">Todos os status</option>@foreach (var status in Enum.GetValues<QuotationStatus>()) { <option value="@status" selected="@(Model.Status == status)">@status.DisplayName()</option> }</select>
+        <input class="form-control date-filter" type="date" name="from" value="@Model.From?.ToString("yyyy-MM-dd")" aria-label="Emitidos a partir de" />
+        <input class="form-control date-filter" type="date" name="to" value="@Model.To?.ToString("yyyy-MM-dd")" aria-label="Emitidos até" />
+        <input type="hidden" name="sort" value="@Model.Sort" /><input type="hidden" name="descending" value="@Model.Descending.ToString().ToLowerInvariant()" />
+        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-funnel"></i>Filtrar</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Search) || Model.Status.HasValue || Model.From.HasValue || Model.To.HasValue) { <a class="clear-filter" asp-action="Index">Limpar</a> }
+    </form>
+    @if (Model.Quotations.Count == 0)
+    {
+        <div class="empty-state"><span class="empty-icon"><i class="bi bi-file-earmark-text"></i></span><h3>Nenhum orçamento encontrado</h3><p>Comece uma nova proposta ou ajuste os filtros da busca.</p><a class="btn btn-primary" asp-action="Create">Criar orçamento</a></div>
+    }
+    else
+    {
+        <div class="table-responsive"><table class="table app-table align-middle mb-0"><thead><tr>
+            <th><a class="sort-link" asp-action="Index" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-from="@Model.From?.ToString("yyyy-MM-dd")" asp-route-to="@Model.To?.ToString("yyyy-MM-dd")" asp-route-sort="number" asp-route-descending="@(Model.Sort == "number" ? !Model.Descending : false)">Número <i class="bi bi-arrow-down-up"></i></a></th>
+            <th><a class="sort-link" asp-action="Index" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-from="@Model.From?.ToString("yyyy-MM-dd")" asp-route-to="@Model.To?.ToString("yyyy-MM-dd")" asp-route-sort="client" asp-route-descending="@(Model.Sort == "client" ? !Model.Descending : false)">Cliente <i class="bi bi-arrow-down-up"></i></a></th>
+            <th>Emissão</th><th>Validade</th>
+            <th><a class="sort-link" asp-action="Index" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-from="@Model.From?.ToString("yyyy-MM-dd")" asp-route-to="@Model.To?.ToString("yyyy-MM-dd")" asp-route-sort="total" asp-route-descending="@(Model.Sort == "total" ? !Model.Descending : false)">Total <i class="bi bi-arrow-down-up"></i></a></th>
+            <th>Status</th><th class="text-end">Ações</th>
+        </tr></thead><tbody>
+        @foreach (var quote in Model.Quotations)
+        {
+            <tr><td><a class="table-primary-link" asp-action="Details" asp-route-id="@quote.Id">@quote.Number</a></td><td><span class="contact-primary">@quote.ClientName</span></td><td>@quote.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</td><td>@quote.ValidUntil.ToString("dd/MM/yyyy")</td><td class="fw-semibold">@quote.Total.ToString("C", ptBr)</td><td><partial name="_StatusBadge" model="quote.Status" /></td><td class="text-end"><a class="row-action" asp-action="Details" asp-route-id="@quote.Id" aria-label="Abrir @quote.Number"><i class="bi bi-arrow-up-right"></i></a></td></tr>
+        }
+        </tbody></table></div>
+        <partial name="_Pagination" model="new PaginationViewModel(Model.Page, Model.PageCount, Model.TotalCount, Model.PageSize)" />
+    }
+</section>

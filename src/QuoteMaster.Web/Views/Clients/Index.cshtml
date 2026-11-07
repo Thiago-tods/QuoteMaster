@@ -1,0 +1,50 @@
+@model ClientListViewModel
+@{
+    ViewData["Title"] = "Clientes";
+}
+<div class="page-heading">
+    <div><span class="eyebrow">RELACIONAMENTO</span><h1>Clientes</h1><p>Organize seus contatos e mantenha as informações sempre atualizadas.</p></div>
+    <a class="btn btn-primary" asp-action="Create"><i class="bi bi-plus-lg"></i>Novo cliente</a>
+</div>
+
+<section class="surface-card list-card">
+    <form method="get" class="list-toolbar">
+        <div class="search-field"><i class="bi bi-search"></i><input type="search" name="search" value="@Model.Search" placeholder="Buscar por nome, documento ou e-mail" aria-label="Buscar clientes" /></div>
+        <select class="form-select toolbar-select" name="status" aria-label="Filtrar por situação">
+            <option value="all" selected="@(Model.Status == "all")">Todos os status</option>
+            <option value="active" selected="@(Model.Status == "active")">Ativos</option>
+            <option value="inactive" selected="@(Model.Status == "inactive")">Inativos</option>
+        </select>
+        <input type="hidden" name="sort" value="@Model.Sort" /><input type="hidden" name="descending" value="@Model.Descending.ToString().ToLowerInvariant()" />
+        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-funnel"></i>Filtrar</button>
+        @if (!string.IsNullOrWhiteSpace(Model.Search) || Model.Status != "all") { <a class="clear-filter" asp-action="Index">Limpar</a> }
+    </form>
+    @if (Model.Clients.Count == 0)
+    {
+        <div class="empty-state"><span class="empty-icon"><i class="bi bi-people"></i></span><h3>Nenhum cliente encontrado</h3><p>Tente ajustar sua busca ou cadastre seu primeiro cliente.</p><a class="btn btn-primary" asp-action="Create">Cadastrar cliente</a></div>
+    }
+    else
+    {
+        <div class="table-responsive"><table class="table app-table align-middle mb-0">
+            <thead><tr>
+                <th><a class="sort-link" asp-action="Index" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-sort="name" asp-route-descending="@(Model.Sort == "name" ? !Model.Descending : false)">Cliente <i class="bi bi-arrow-down-up"></i></a></th>
+                <th>Documento</th><th>Contato</th>
+                <th><a class="sort-link" asp-action="Index" asp-route-search="@Model.Search" asp-route-status="@Model.Status" asp-route-sort="status" asp-route-descending="@(Model.Sort == "status" ? !Model.Descending : false)">Situação <i class="bi bi-arrow-down-up"></i></a></th>
+                <th class="text-end">Ações</th>
+            </tr></thead>
+            <tbody>
+            @foreach (var client in Model.Clients)
+            {
+                <tr>
+                    <td><div class="entity-cell"><span class="entity-avatar avatar-client">@client.Name[..1].ToUpperInvariant()</span><span><a class="entity-name" asp-action="Details" asp-route-id="@client.Id">@client.Name</a><small>Cliente desde @client.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy")</small></span></div></td>
+                    <td class="muted-cell">@(client.Document ?? "—")</td>
+                    <td><span class="contact-primary">@(client.Email ?? "Sem e-mail")</span><small class="contact-secondary">@(client.Phone ?? "Sem telefone")</small></td>
+                    <td><span class="status-badge @(client.IsActive ? "badge-approved" : "badge-expired")"><span></span>@(client.IsActive ? "Ativo" : "Inativo")</span></td>
+                    <td class="text-end"><div class="table-actions"><a class="row-action" asp-action="Details" asp-route-id="@client.Id" title="Ver detalhes"><i class="bi bi-eye"></i></a><a class="row-action" asp-action="Edit" asp-route-id="@client.Id" title="Editar"><i class="bi bi-pencil"></i></a></div></td>
+                </tr>
+            }
+            </tbody>
+        </table></div>
+        <partial name="_Pagination" model="new PaginationViewModel(Model.Page, Model.PageCount, Model.TotalCount, Model.PageSize)" />
+    }
+</section>

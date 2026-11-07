@@ -1,0 +1,21 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    string Active(string controller) => currentController == controller ? "active" : string.Empty;
+}
+<aside class="app-sidebar" id="appSidebar">
+    <a class="brand" asp-controller="Dashboard" asp-action="Index" aria-label="QuoteMaster, página inicial">
+        <span class="brand-mark"><i class="bi bi-receipt-cutoff"></i></span>
+        <span><strong>QuoteMaster</strong><small>GESTÃO COMERCIAL</small></span>
+    </a>
+    <div class="sidebar-section-label">MENU PRINCIPAL</div>
+    <nav class="sidebar-nav" aria-label="Navegação principal">
+        <a class="nav-link @Active("Dashboard")" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-grid-1x2"></i><span>Dashboard</span></a>
+        <a class="nav-link @Active("Clients")" asp-controller="Clients" asp-action="Index"><i class="bi bi-people"></i><span>Clientes</span></a>
+        <a class="nav-link @Active("Products")" asp-controller="Products" asp-action="Index"><i class="bi bi-box-seam"></i><span>Produtos e serviços</span></a>
+        <a class="nav-link @Active("Quotations")" asp-controller="Quotations" asp-action="Index"><i class="bi bi-file-earmark-text"></i><span>Orçamentos</span></a>
+    </nav>
+    <div class="sidebar-bottom">
+        <div class="sidebar-tip"><span class="tip-icon"><i class="bi bi-lightning-charge"></i></span><strong>Mais simples, mais rápido</strong><p>Crie propostas profissionais e acompanhe cada negociação em um só lugar.</p></div>
+        <div class="sidebar-user"><span class="avatar">QM</span><span><strong>Espaço local</strong><small>Conta demonstrativa</small></span><i class="bi bi-three-dots"></i></div>
+    </div>
+</aside>

@@ -1,0 +1,13 @@
+@model QuotationStatus
+@{
+    var (label, css) = Model switch
+    {
+        QuotationStatus.Draft => ("Rascunho", "badge-draft"),
+        QuotationStatus.Sent => ("Enviado", "badge-sent"),
+        QuotationStatus.Approved => ("Aprovado", "badge-approved"),
+        QuotationStatus.Rejected => ("Recusado", "badge-rejected"),
+        QuotationStatus.Expired => ("Expirado", "badge-expired"),
+        _ => ("Indefinido", "badge-draft")
+    };
+}
+<span class="status-badge @css"><span></span>@label</span>

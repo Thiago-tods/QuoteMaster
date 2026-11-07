@@ -44,4 +44,4 @@ O banco SQLite será armazenado localmente como `quotemaster-day2.db` na pasta d
 
 ## Estado do projeto
 
-Camada de negócio inicial concluída: validação de clientes e catálogo, cálculo financeiro, transições de status, serviços de clientes/produtos/orçamentos, numeração anual atômica, migrations e testes unitários/de integração. O banco é atualizado automaticamente ao iniciar a aplicação.
+Camada de negócio e interface inicial: dashboard com métricas reais, gestão de clientes e catálogo, criação e acompanhamento de orçamentos, cálculo financeiro no servidor, transições de status, numeração anual atômica, migrations e testes unitários/de integração. O banco é atualizado automaticamente ao iniciar a aplicação.

@@ -1,0 +1,25 @@
+@model ClientFormViewModel
+@{
+    var isEdit = Model.Id.HasValue;
+    ViewData["Title"] = isEdit ? "Editar cliente" : "Novo cliente";
+}
+<div class="page-heading">
+    <div><a class="back-link" asp-action="Index"><i class="bi bi-arrow-left"></i> Voltar para clientes</a><h1>@(isEdit ? "Editar cliente" : "Novo cliente")</h1><p>@(isEdit ? "Atualize os dados de contato deste cliente." : "Adicione um contato para preparar suas propostas comerciais.")</p></div>
+</div>
+<section class="form-layout">
+    <form asp-action="@(isEdit ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post" class="surface-card form-card">
+        @if (isEdit) { <input asp-for="Id" type="hidden" /> }
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <div class="form-section-heading"><span class="section-icon"><i class="bi bi-person-lines-fill"></i></span><div><h2>Informações do cliente</h2><p>Os campos marcados com * são obrigatórios.</p></div></div>
+        <div class="row g-3">
+            <div class="col-12"><label asp-for="Name" class="form-label required-label"></label><input asp-for="Name" class="form-control" placeholder="Ex.: Maria Oliveira ou Empresa Ltda." autocomplete="name" /><span asp-validation-for="Name" class="field-validation"></span></div>
+            <div class="col-md-6"><label asp-for="Document" class="form-label"></label><input asp-for="Document" class="form-control" placeholder="000.000.000-00" inputmode="numeric" /><span asp-validation-for="Document" class="field-validation"></span></div>
+            <div class="col-md-6"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" placeholder="nome@empresa.com.br" autocomplete="email" /><span asp-validation-for="Email" class="field-validation"></span></div>
+            <div class="col-md-6"><label asp-for="Phone" class="form-label"></label><input asp-for="Phone" class="form-control" placeholder="(11) 99999-9999" autocomplete="tel" /><span asp-validation-for="Phone" class="field-validation"></span></div>
+            <div class="col-12"><label asp-for="Address" class="form-label"></label><input asp-for="Address" class="form-control" placeholder="Rua, número, bairro, cidade e CEP" autocomplete="street-address" /><span asp-validation-for="Address" class="field-validation"></span></div>
+        </div>
+        <div class="form-actions"><a class="btn btn-light" asp-action="Index">Cancelar</a><button type="submit" class="btn btn-primary"><i class="bi bi-check2"></i>@(isEdit ? "Salvar alterações" : "Cadastrar cliente")</button></div>
+    </form>
+    <aside class="form-aside"><div class="aside-icon"><i class="bi bi-shield-check"></i></div><h3>Seus dados, organizados</h3><p>Clientes vinculados a orçamentos não são apagados. Você pode desativá-los e manter todo o histórico comercial.</p><div class="aside-note"><i class="bi bi-info-circle"></i><span>CPF ou CNPJ e e-mail são validados ao salvar.</span></div></aside>
+</section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

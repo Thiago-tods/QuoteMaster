@@ -1,0 +1,76 @@
+@model DashboardViewModel
+@using System.Globalization
+@using System.Text.Json
+@{
+    ViewData["Title"] = "Dashboard";
+    var ptBr = CultureInfo.GetCultureInfo("pt-BR");
+    var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    var monthlyLabels = Html.Raw(JsonSerializer.Serialize(Model.MonthLabels, jsonOptions));
+    var monthlyData = Html.Raw(JsonSerializer.Serialize(Model.MonthlyCounts, jsonOptions));
+    var statusLabels = Html.Raw(JsonSerializer.Serialize(Model.StatusLabels, jsonOptions));
+    var statusData = Html.Raw(JsonSerializer.Serialize(Model.StatusCounts, jsonOptions));
+}
+<div class="page-heading">
+    <div><span class="eyebrow">VISÃO GERAL</span><h1>Dashboard</h1><p>Acompanhe o ritmo das suas propostas e negociações.</p></div>
+    <a class="btn btn-primary" asp-controller="Quotations" asp-action="Create"><i class="bi bi-plus-lg"></i>Novo orçamento</a>
+</div>
+
+<section class="metric-grid" aria-label="Indicadores do negócio">
+    <article class="metric-card"><div class="metric-top"><span>Total de orçamentos</span><span class="metric-icon icon-blue"><i class="bi bi-file-earmark-text"></i></span></div><strong class="metric-value">@Model.TotalQuotations</strong><small class="metric-caption">Criados até agora</small></article>
+    <article class="metric-card"><div class="metric-top"><span>Aguardando resposta</span><span class="metric-icon icon-amber"><i class="bi bi-hourglass-split"></i></span></div><strong class="metric-value">@Model.WaitingForResponse</strong><small class="metric-caption">Enviados aos clientes</small></article>
+    <article class="metric-card"><div class="metric-top"><span>Orçamentos aprovados</span><span class="metric-icon icon-green"><i class="bi bi-check2-circle"></i></span></div><strong class="metric-value">@Model.ApprovedCount</strong><small class="metric-caption">Taxa de aprovação <b>@Model.ApprovalRate.ToString("0.#", ptBr)%</b></small></article>
+    <article class="metric-card"><div class="metric-top"><span>Valor aprovado</span><span class="metric-icon icon-violet"><i class="bi bi-currency-dollar"></i></span></div><strong class="metric-value metric-money">@Model.ApprovedValue.ToString("C", ptBr)</strong><small class="metric-caption">Soma dos aprovados</small></article>
+</section>
+
+<section class="chart-grid">
+    <article class="surface-card chart-card">
+        <div class="card-heading"><div><h2>Orçamentos criados</h2><p>Volume mensal nos últimos seis meses</p></div><span class="heading-icon"><i class="bi bi-bar-chart-line"></i></span></div>
+        <div class="chart-canvas-wrap"><canvas id="monthlyChart" aria-label="Gráfico de orçamentos por mês"></canvas></div>
+    </article>
+    <article class="surface-card chart-card status-chart-card">
+        <div class="card-heading"><div><h2>Por status</h2><p>Distribuição das propostas</p></div><span class="heading-icon"><i class="bi bi-pie-chart"></i></span></div>
+        <div class="status-chart-wrap"><canvas id="statusChart" aria-label="Gráfico de orçamentos por status"></canvas></div>
+        <div class="chart-legend"><span><i class="legend-dot dot-draft"></i>Rascunho</span><span><i class="legend-dot dot-sent"></i>Enviado</span><span><i class="legend-dot dot-approved"></i>Aprovado</span><span><i class="legend-dot dot-rejected"></i>Recusado</span><span><i class="legend-dot dot-expired"></i>Expirado</span></div>
+    </article>
+</section>
+
+<section class="surface-card table-card">
+    <div class="card-heading table-card-heading"><div><h2>Orçamentos recentes</h2><p>As últimas propostas registradas no sistema</p></div><a class="text-link" asp-controller="Quotations" asp-action="Index">Ver todos <i class="bi bi-arrow-up-right"></i></a></div>
+    @if (Model.RecentQuotations.Count == 0)
+    {
+        <div class="empty-state compact"><span class="empty-icon"><i class="bi bi-file-earmark-plus"></i></span><h3>Seu primeiro orçamento começa aqui</h3><p>Cadastre um cliente e monte uma proposta em poucos passos.</p><a class="btn btn-primary" asp-controller="Quotations" asp-action="Create">Criar orçamento</a></div>
+    }
+    else
+    {
+        <div class="table-responsive"><table class="table app-table align-middle mb-0">
+            <thead><tr><th>Número</th><th>Cliente</th><th>Emissão</th><th class="text-end">Valor</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+            @foreach (var quote in Model.RecentQuotations)
+            {
+                <tr><td><a class="table-primary-link" asp-controller="Quotations" asp-action="Details" asp-route-id="@quote.Id">@quote.Number</a></td><td>@quote.ClientName</td><td>@quote.CreatedAt.ToLocalTime().ToString("dd MMM yyyy", ptBr)</td><td class="text-end fw-semibold">@quote.Total.ToString("C", ptBr)</td><td><partial name="_StatusBadge" model="quote.Status" /></td><td class="text-end"><a class="row-action" asp-controller="Quotations" asp-action="Details" asp-route-id="@quote.Id" aria-label="Abrir @quote.Number"><i class="bi bi-arrow-up-right"></i></a></td></tr>
+            }
+            </tbody>
+        </table></div>
+    }
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script>
+        const monthLabels = @monthlyLabels;
+        const monthValues = @monthlyData;
+        const statusLabels = @statusLabels;
+        const statusValues = @statusData;
+        const chartFont = { family: 'Inter, sans-serif' };
+        new Chart(document.getElementById('monthlyChart'), {
+            type: 'bar',
+            data: { labels: monthLabels, datasets: [{ data: monthValues, backgroundColor: '#3b82f6', hoverBackgroundColor: '#2563eb', borderRadius: 7, maxBarThickness: 32 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { backgroundColor: '#173b67', padding: 12, titleFont: chartFont, bodyFont: chartFont } }, scales: { x: { grid: { display: false }, border: { display: false }, ticks: { color: '#64748b', font: chartFont } }, y: { beginAtZero: true, border: { display: false }, grid: { color: '#eef2f7' }, ticks: { precision: 0, color: '#94a3b8', font: chartFont } } } }
+        });
+        new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: { labels: statusLabels, datasets: [{ data: statusValues, backgroundColor: ['#94a3b8', '#3b82f6', '#16a34a', '#ef4444', '#f59e0b'], borderWidth: 0, hoverOffset: 5 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '72%', plugins: { legend: { display: false }, tooltip: { backgroundColor: '#173b67', padding: 12, titleFont: chartFont, bodyFont: chartFont } } }
+        });
+    </script>
+}
