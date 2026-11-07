@@ -10,6 +10,8 @@
 .vscode/*
 !.vscode/settings.json
 .tools/
+src/QuoteMaster.Web/App_Data/
+/dist/
 
 ## Secrets and local configuration
 appsettings.Local.json

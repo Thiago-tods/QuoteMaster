@@ -19,7 +19,8 @@ public sealed class QuotationService(
             ?? throw new KeyNotFoundException("Cliente não encontrado.");
         if (!client.IsActive) throw new DomainException("Não é possível criar um orçamento para um cliente inativo.");
         var now = timeProvider.GetUtcNow().UtcDateTime;
-        if (input.ValidUntil.Date < now.Date) throw new DomainException("A validade do orçamento não pode estar no passado.");
+        var localNow = timeProvider.GetLocalNow().DateTime;
+        if (input.ValidUntil.Date < localNow.Date) throw new DomainException("A validade do orçamento não pode estar no passado.");
         if (input.Items is null || input.Items.Count == 0) throw new DomainException("O orçamento precisa conter ao menos um item.");
         if (input.Notes?.Length > 2000) throw new DomainException("As observações devem ter no máximo 2000 caracteres.");
 
@@ -44,7 +45,7 @@ public sealed class QuotationService(
         var totals = QuotationCalculator.Calculate(items.Select(x => new QuotationLineAmount(x.Quantity, x.UnitPrice, x.Discount)), input.Discount);
         var quotation = new Quotation
         {
-            Number = await numberGenerator.GenerateAsync(now, cancellationToken),
+            Number = await numberGenerator.GenerateAsync(localNow, cancellationToken),
             ClientId = client.Id,
             Client = client,
             CreatedAt = now,
@@ -75,7 +76,7 @@ public sealed class QuotationService(
     public Task<QuotationDto> SendAsync(int id, CancellationToken cancellationToken = default) => TransitionAsync(id, x => x.MarkSent(), cancellationToken);
     public Task<QuotationDto> ApproveAsync(int id, CancellationToken cancellationToken = default) => TransitionAsync(id, x => x.Approve(), cancellationToken);
     public Task<QuotationDto> RejectAsync(int id, CancellationToken cancellationToken = default) => TransitionAsync(id, x => x.Reject(), cancellationToken);
-    public Task<QuotationDto> ExpireAsync(int id, CancellationToken cancellationToken = default) => TransitionAsync(id, x => x.Expire(timeProvider.GetUtcNow().UtcDateTime), cancellationToken);
+    public Task<QuotationDto> ExpireAsync(int id, CancellationToken cancellationToken = default) => TransitionAsync(id, x => x.Expire(timeProvider.GetLocalNow().DateTime), cancellationToken);
 
     private async Task<QuotationDto> TransitionAsync(int id, Action<Quotation> transition, CancellationToken cancellationToken)
     {

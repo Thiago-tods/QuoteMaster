@@ -27,7 +27,8 @@ internal sealed class TestSqliteDatabase : IAsyncDisposable
     }
 }
 
-internal sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
+internal sealed class FixedTimeProvider(DateTimeOffset now, TimeZoneInfo? localTimeZone = null) : TimeProvider
 {
     public override DateTimeOffset GetUtcNow() => now;
+    public override TimeZoneInfo LocalTimeZone => localTimeZone ?? TimeZoneInfo.Local;
 }

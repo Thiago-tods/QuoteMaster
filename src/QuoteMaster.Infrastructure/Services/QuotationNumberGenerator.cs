@@ -7,9 +7,9 @@ namespace QuoteMaster.Infrastructure.Services;
 
 public sealed class QuotationNumberGenerator(ApplicationDbContext db) : IQuotationNumberGenerator
 {
-    public async Task<string> GenerateAsync(DateTime createdAtUtc, CancellationToken cancellationToken = default)
+    public async Task<string> GenerateAsync(DateTime quotationLocalDate, CancellationToken cancellationToken = default)
     {
-        var year = createdAtUtc.Year;
+        var year = quotationLocalDate.Year;
         var connection = db.Database.GetDbConnection();
         await db.Database.OpenConnectionAsync(cancellationToken);
         try

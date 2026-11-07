@@ -7,7 +7,7 @@ using QuoteMaster.Web.ViewModels.QuotationViewModels;
 
 namespace QuoteMaster.Web.Controllers;
 
-public sealed class QuotationsController(IQuotationService quotations, IClientService clients, IProductService products) : Controller
+public sealed class QuotationsController(IQuotationService quotations, IClientService clients, IProductService products, ICompanySettingsService companySettings, IQuotationPdfGenerator pdfGenerator) : Controller
 {
     [HttpGet]
     public async Task<IActionResult> Index(string? search, QuotationStatus? status, DateTime? from, DateTime? to, string sort = "date", bool descending = true, int page = 1, CancellationToken cancellationToken = default)
@@ -43,7 +43,8 @@ public sealed class QuotationsController(IQuotationService quotations, IClientSe
     [HttpGet]
     public async Task<IActionResult> Create(int? clientId, CancellationToken cancellationToken)
     {
-        var model = new QuotationCreateViewModel { ClientId = clientId ?? 0 };
+        var settings = await companySettings.GetAsync(cancellationToken);
+        var model = new QuotationCreateViewModel { ClientId = clientId ?? 0, ValidUntil = DateTime.Today.AddDays(settings.DefaultValidityDays), Notes = settings.DefaultNotes };
         await PopulateChoicesAsync(model, cancellationToken);
         return View(model);
     }
@@ -78,6 +79,17 @@ public sealed class QuotationsController(IQuotationService quotations, IClientSe
     {
         var quotation = await quotations.GetAsync(id, cancellationToken);
         return quotation is null ? NotFound() : View(quotation);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> Pdf(int id, CancellationToken cancellationToken)
+    {
+        var quotation = await quotations.GetAsync(id, cancellationToken);
+        if (quotation is null) return NotFound();
+        var company = await companySettings.GetAsync(cancellationToken);
+        var bytes = await pdfGenerator.GenerateAsync(quotation, company, await companySettings.GetLogoAsync(cancellationToken), cancellationToken);
+        var safeNumber = string.Concat(quotation.Number.Where(c => char.IsLetterOrDigit(c) || c is '-' or '_'));
+        return File(bytes, "application/pdf", $"orcamento-{safeNumber}.pdf");
     }
 
     [HttpPost]

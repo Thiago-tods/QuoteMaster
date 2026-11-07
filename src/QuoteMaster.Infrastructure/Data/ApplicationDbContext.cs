@@ -10,6 +10,7 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
     public DbSet<Quotation> Quotations => Set<Quotation>();
     public DbSet<QuotationItem> QuotationItems => Set<QuotationItem>();
     public DbSet<QuotationNumberSequence> QuotationNumberSequences => Set<QuotationNumberSequence>();
+    public DbSet<CompanySettings> CompanySettings => Set<CompanySettings>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -56,6 +57,19 @@ public sealed class ApplicationDbContext(DbContextOptions<ApplicationDbContext> 
         {
             entity.HasKey(x => x.Year);
             entity.Property(x => x.Year).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<CompanySettings>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+            entity.Property(x => x.CompanyName).HasMaxLength(160).IsRequired();
+            entity.Property(x => x.TradeName).HasMaxLength(160);
+            entity.Property(x => x.Document).HasMaxLength(18);
+            entity.Property(x => x.Email).HasMaxLength(254);
+            entity.Property(x => x.Phone).HasMaxLength(30);
+            entity.Property(x => x.Address).HasMaxLength(400);
+            entity.Property(x => x.LogoPath).HasMaxLength(80);
+            entity.Property(x => x.DefaultNotes).HasMaxLength(2000);
         });
     }
 }

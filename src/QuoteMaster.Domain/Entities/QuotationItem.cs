@@ -17,6 +17,8 @@ public sealed class QuotationItem
 
     public static QuotationItem Create(string description, int? productId, decimal quantity, decimal unitPrice, decimal discount)
     {
+        if (quantity != Math.Round(quantity, 3, MidpointRounding.AwayFromZero))
+            throw new QuoteMaster.Domain.Exceptions.DomainException("A quantidade deve ter no máximo três casas decimais.");
         if (string.IsNullOrWhiteSpace(description))
             throw new QuoteMaster.Domain.Exceptions.DomainException("A descrição do item é obrigatória.");
 

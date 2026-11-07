@@ -55,6 +55,53 @@ namespace QuoteMaster.Infrastructure.Data.Migrations
                     b.ToTable("Clients", (string)null);
                 });
 
+            modelBuilder.Entity("QuoteMaster.Domain.Entities.CompanySettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(400)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DefaultNotes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("DefaultValidityDays")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Document")
+                        .HasMaxLength(18)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(254)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("LogoPath")
+                        .HasMaxLength(80)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("TradeName")
+                        .HasMaxLength(160)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CompanySettings", (string)null);
+                });
+
             modelBuilder.Entity("QuoteMaster.Domain.Entities.Product", b =>
                 {
                     b.Property<int>("Id")

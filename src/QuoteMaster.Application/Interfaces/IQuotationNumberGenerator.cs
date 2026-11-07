@@ -2,5 +2,5 @@ namespace QuoteMaster.Application.Interfaces;
 
 public interface IQuotationNumberGenerator
 {
-    Task<string> GenerateAsync(DateTime createdAtUtc, CancellationToken cancellationToken = default);
+    Task<string> GenerateAsync(DateTime quotationLocalDate, CancellationToken cancellationToken = default);
 }

@@ -8,5 +8,6 @@
     <ProjectReference Include="..\QuoteMaster.Domain\QuoteMaster.Domain.csproj" />
     <ProjectReference Include="..\QuoteMaster.Application\QuoteMaster.Application.csproj" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.14" />
+    <PackageReference Include="QuestPDF" Version="2026.9.1" />
   </ItemGroup>
 </Project>

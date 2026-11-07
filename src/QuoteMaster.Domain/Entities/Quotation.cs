@@ -36,10 +36,10 @@ public sealed class Quotation
         Status = QuotationStatus.Rejected;
     }
 
-    public void Expire(DateTime utcNow)
+    public void Expire(DateTime localNow)
     {
         EnsureStatus(QuotationStatus.Sent, "Somente um orçamento enviado pode expirar.");
-        if (utcNow.Date <= ValidUntil.Date)
+        if (localNow.Date <= ValidUntil.Date)
             throw new DomainException("O orçamento ainda está dentro do prazo de validade.");
         Status = QuotationStatus.Expired;
     }

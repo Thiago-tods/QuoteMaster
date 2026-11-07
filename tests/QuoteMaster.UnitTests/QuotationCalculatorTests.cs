@@ -45,4 +45,11 @@ public sealed class QuotationCalculatorTests
     {
         Assert.Throws<DomainException>(() => QuotationCalculator.Calculate([new QuotationLineAmount(1, 50, 0)], 50.01m));
     }
+
+    [Fact]
+    public void RejectsQuantityWithMorePrecisionThanTheStoredAndDisplayedAmount()
+    {
+        Assert.Throws<DomainException>(() => QuoteMaster.Domain.Entities.QuotationItem.Create("Cabo", null, 1.0005m, 10m, 0m));
+        Assert.Equal(1.001m, QuoteMaster.Domain.Entities.QuotationItem.Create("Cabo", null, 1.001m, 10m, 0m).Quantity);
+    }
 }

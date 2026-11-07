@@ -103,4 +103,36 @@ public sealed class QuotationServiceTests
         Assert.False((await clients.GetAsync(client.Id))!.IsActive);
         Assert.False((await products.GetAsync(product.Id))!.IsActive);
     }
+
+    [Fact]
+    public async Task UsesLocalBusinessDateForExpiryAndYearBoundaryNumbering()
+    {
+        await using var database = new TestSqliteDatabase();
+        await database.InitializeAsync();
+        var brazilTime = TimeZoneInfo.CreateCustomTimeZone("Brazil UTC-3", TimeSpan.FromHours(-3), "Brazil UTC-3", "Brazil UTC-3");
+        var utcJustAfterNewYear = new DateTimeOffset(2027, 1, 1, 1, 30, 0, TimeSpan.Zero);
+        int quoteId;
+        await using (var db = database.CreateContext())
+        {
+            var clients = new ClientService(db);
+            var products = new ProductService(db);
+            var client = await clients.CreateAsync(new SaveClientDto("Cliente", null, null, null, null));
+            var service = await products.CreateAsync(new SaveProductDto("Serviço", null, 100m, ProductType.Service));
+            var quotes = new QuotationService(db, new QuotationNumberGenerator(db), new FixedTimeProvider(utcJustAfterNewYear, brazilTime));
+            var quote = await quotes.CreateAsync(new CreateQuotationDto(client.Id, new DateTime(2026, 12, 31), 0m, null, [new CreateQuotationItemDto(service.Id, null, 1m, null, 0m)]));
+            Assert.Equal("ORC-2026-000001", quote.Number);
+            await quotes.SendAsync(quote.Id);
+            quoteId = quote.Id;
+            await Assert.ThrowsAsync<DomainException>(() => quotes.ExpireAsync(quoteId));
+        }
+
+        await using (var db = database.CreateContext())
+        {
+            var nextLocalDay = new FixedTimeProvider(new DateTimeOffset(2027, 1, 2, 1, 30, 0, TimeSpan.Zero), brazilTime);
+            var quotes = new QuotationService(db, new QuotationNumberGenerator(db), nextLocalDay);
+            var expired = await quotes.ExpireAsync(quoteId);
+            Assert.Equal(QuotationStatus.Expired, expired.Status);
+        }
+    }
+
 }

@@ -1,0 +1,21 @@
+@model QuoteMaster.Web.ViewModels.CompanySettingsViewModel
+@{ ViewData["Title"] = "Configurações da empresa"; }
+<div class="page-heading"><div><h1>Configurações da empresa</h1><p>Dados exibidos nos orçamentos em PDF e valores padrão.</p></div></div>
+<form asp-action="Index" method="post" enctype="multipart/form-data" class="surface-card p-4">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-3">
+        <div class="col-md-6"><label asp-for="CompanyName" class="form-label"></label><input asp-for="CompanyName" class="form-control"/><span asp-validation-for="CompanyName" class="text-danger"></span></div>
+        <div class="col-md-6"><label asp-for="TradeName" class="form-label"></label><input asp-for="TradeName" class="form-control"/></div>
+        <div class="col-md-4"><label asp-for="Document" class="form-label"></label><input asp-for="Document" class="form-control"/></div>
+        <div class="col-md-4"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control"/></div>
+        <div class="col-md-4"><label asp-for="Phone" class="form-label"></label><input asp-for="Phone" class="form-control"/></div>
+        <div class="col-12"><label asp-for="Address" class="form-label"></label><input asp-for="Address" class="form-control"/></div>
+        <div class="col-md-4"><label asp-for="DefaultValidityDays" class="form-label"></label><input asp-for="DefaultValidityDays" class="form-control"/><span asp-validation-for="DefaultValidityDays" class="text-danger"></span></div>
+        <div class="col-12"><label asp-for="DefaultNotes" class="form-label"></label><textarea asp-for="DefaultNotes" class="form-control" rows="3"></textarea></div>
+        <div class="col-12"><label asp-for="Logo" class="form-label">Logotipo (PNG/JPEG, até 2 MiB)</label><input asp-for="Logo" type="file" accept="image/png,image/jpeg" class="form-control"/><span asp-validation-for="Logo" class="text-danger"></span>
+        @if (!string.IsNullOrEmpty(Model.LogoPath)) { <div class="mt-3"><img src="@Url.Action("Logo")" alt="Logotipo cadastrado" style="max-width:180px;max-height:90px"/><button asp-action="RemoveLogo" formmethod="post" form="remove-logo" class="btn btn-outline-danger ms-3">Remover logotipo</button></div> }</div>
+    </div>
+    <div class="mt-4"><button class="btn btn-primary" type="submit">Salvar configurações</button></div>
+</form>
+<form id="remove-logo" asp-action="RemoveLogo" method="post">@Html.AntiForgeryToken()</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
